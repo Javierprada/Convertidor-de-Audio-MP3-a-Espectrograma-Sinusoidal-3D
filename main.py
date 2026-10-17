@@ -30,6 +30,7 @@ async def recibir_audio(
     background_tasks: BackgroundTasks,
     archivo: UploadFile = File(...)
 ):
+    print(">>> ENTRO EN recibir_audio()", flush=True)
     ruta_audio = None
     ruta_video = None
     
@@ -72,6 +73,18 @@ async def recibir_audio(
             ruta_audio=ruta_audio,
             ruta_salida=ruta_salida_video,
             fps=30,
+        )
+        
+        # 6. Programar la limpieza de los archivos temporales.
+        background_tasks.add_task(os.remove, str(ruta_video))
+        background_tasks.add_task(os.remove, str(ruta_audio))
+        
+        # 7. Devolver el vídeo MP4 al cliente.
+        return FileResponse(
+            path=str(ruta_video),
+            media_type="video/mp4",
+            filename="visualizacion_isunoidal3D.mp4",
+            background=background_tasks,
         )
 
     except Exception:

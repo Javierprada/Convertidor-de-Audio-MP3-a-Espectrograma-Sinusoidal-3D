@@ -121,11 +121,26 @@ def crear_video(
                     "Los fotogramas deben tener tipo uint8."
                 )
 
+        try:
             proceso.stdin.write(
                 np.ascontiguousarray(fotograma).tobytes()
             )
+            
+        except BrokenPipeError as error:
+            
+                errores = proceso.stderr.read()
+                codigo_salida = proceso.wait()
+                
+                raise RuntimeError(
+                    f"FFmpeg se cerró mientras recibía los fotogramas. "
+                    f"Código de salida: {codigo_salida}\n"
+                    f"Detalle de FFmpeg:\n"
+                    f"{errores.decode('utf-8', errors='replace')}"
+                ) from error
 
-            cantidad_fotogramas += 1
+                
+
+        cantidad_fotogramas += 1
 
         if cantidad_fotogramas == 0:
             raise ValueError(
