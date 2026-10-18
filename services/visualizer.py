@@ -8,6 +8,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
+from datetime import date
+
 
 def normalizar_superficie(superficie):
     """Normaliza las magnitudes de una superficie sin dividir por cero."""
@@ -92,10 +94,10 @@ def generar_fotogramas(
     
     # Reducir las columnas para dibujar una malla manejable.
     cantidad_puntos_frecuencia = min(
-        cantidad_puntos_frecuencia,
+        cantidad_puntos_frecuencia, 
         matriz_magnitudes.shape[1]
     )
-    
+    # Creando la lista de compras
     indices_frecuencia = np.linspace(
         0,
         matriz_magnitudes.shape[1] - 1,
@@ -125,17 +127,46 @@ def generar_fotogramas(
     ax = fig.add_subplot(111, projection="3d")
     ax.set_facecolor("#05051a")
     
+    # Nombre del desarrollador
+    fig.text(
+        0.5, 0.92,
+        "Developer / Joseth Prada",
+        color="#00D9FF",
+        fontsize=25,
+        fontweight="bold",
+        ha="center",
+        va="center",
+        family="sans-serif"
+    )
+    
+     # Fecha de géneración del video.
+    fig.text(
+        0.5, 0.86,
+        date.today().strftime("%d/%m/%Y"),
+        color="#00D9FF",
+        fontsize=25,
+        fontweight="bold",
+        ha="center",
+        va="center",
+        family="sans-serif"
+    )
+    
     ax.set_xlim(0, 1)
     ax.set_ylim(-1, 0)
     ax.set_zlim(0, 1)
     
     ax.view_init(elev=28, azim=-65)
-    ax.set_box_aspect((2.0, 1.3, 0.8))
+    
+    # Acerca la cámara
+    ax.dist = 7
+    
+    # Ajusta la proporción de la malla
+    ax.set_box_aspect((2.5, 1.6, 1.0))
     
     # Ocultar ejes y paneles para una estética limpia.
     ax.set_axis_off()
     fig.subplots_adjust(
-        left=0, right=1, bottom=0, top=1
+        left=0, right=1, bottom=0, top=0.88
     ) 
     
     # Crear las líneas de la malla una sola vez.
@@ -205,6 +236,13 @@ def generar_fotogramas(
                 indice_ventana,
                 numero_ventanas - 1,
             )
+            
+            if numero_fotograma % 30 == 0:
+                print(
+                    "Fotograma:", numero_fotograma,
+                    "Tiempo:", tiempo_actual,
+                    "Ventana:", indice_ventana
+                )
 
             # Extraer el historial disponible hasta este instante.
             inicio_historial = max(
@@ -224,6 +262,13 @@ def generar_fotogramas(
 
             # Las magnitudes determinan el relieve vertical.
             Z = superficie
+            
+            if numero_fotograma % 30 == 0:
+                print(
+                    "Altura min:", Z.min(),
+                    "Altura maxima:", Z.max(),
+                    "Variación:", np.std(Z)
+                )
 
             # Actualizar las líneas sin reconstruir la figura.
             for tipo, indice, linea in lineas_malla:

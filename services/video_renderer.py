@@ -105,49 +105,57 @@ def crear_video(
     
     try:
         for fotograma in fotogramas:
+            
+             # 1. Validar el tipo de dato.
             if not isinstance(fotograma, np.ndarray):
                 raise TypeError(
                     "Cada fotograma debe ser un numpy.ndarray."
                 )
 
+            # 2. Validar las dimensiones.
             if fotograma.shape != (600, 1200, 3):
                 raise ValueError(
                     "Cada fotograma debe tener dimensiones "
                     "(600, 1200, 3)."
                 )
 
+            # 3. Validar el tipo de los píxeles.
             if fotograma.dtype != np.uint8:
                 raise TypeError(
                     "Los fotogramas deben tener tipo uint8."
                 )
 
-        try:
-            proceso.stdin.write(
-                np.ascontiguousarray(fotograma).tobytes()
-            )
+            # 4. Enviar ESTE fotograma a FFmpeg.
+            try:
+                proceso.stdin.write(
+                    np.ascontiguousarray(fotograma).tobytes()
+                )
             
-        except BrokenPipeError as error:
-            
-                errores = proceso.stderr.read()
-                codigo_salida = proceso.wait()
+            except BrokenPipeError as error:
                 
-                raise RuntimeError(
-                    f"FFmpeg se cerró mientras recibía los fotogramas. "
-                    f"Código de salida: {codigo_salida}\n"
-                    f"Detalle de FFmpeg:\n"
-                    f"{errores.decode('utf-8', errors='replace')}"
-                ) from error
+                    errores = proceso.stderr.read()
+                    codigo_salida = proceso.wait()
+                    
+                    raise RuntimeError(
+                        f"FFmpeg se cerró mientras recibía los fotogramas. "
+                        f"Código de salida: {codigo_salida}\n"
+                        f"Detalle de FFmpeg:\n"
+                        f"{errores.decode('utf-8', errors='replace')}"
+                    ) from error
 
                 
 
-        cantidad_fotogramas += 1
+            cantidad_fotogramas += 1
 
         if cantidad_fotogramas == 0:
             raise ValueError(
                 "El visualizador no produjo ningún fotograma."
             )
 
+        # 6. Indicar que ya no se enviarán más fotogramas.
         proceso.stdin.close()
+        
+        # 7. Esperar a que FFmpeg termine.
         errores = proceso.stderr.read()
         codigo_salida = proceso.wait()
 
