@@ -66,7 +66,7 @@ def crear_video(
         "-f", "rawvideo",
         "-vcodec", "rawvideo",
         "-pix_fmt", "rgb24",
-        "-video_size", "1200x600",
+        "-video_size", "1200x676",
         "-framerate", str(fps),
         "-i", "pipe:0",
 
@@ -113,10 +113,10 @@ def crear_video(
                 )
 
             # 2. Validar las dimensiones.
-            if fotograma.shape != (600, 1200, 3):
+            if fotograma.shape != (676, 1200, 3):
                 raise ValueError(
                     "Cada fotograma debe tener dimensiones "
-                    "(600, 1200, 3)."
+                    "(676, 1200, 3)."
                 )
 
             # 3. Validar el tipo de los píxeles.
@@ -125,6 +125,10 @@ def crear_video(
                     "Los fotogramas deben tener tipo uint8."
                 )
 
+            
+            
+            
+            
             # 4. Enviar ESTE fotograma a FFmpeg.
             try:
                 proceso.stdin.write(

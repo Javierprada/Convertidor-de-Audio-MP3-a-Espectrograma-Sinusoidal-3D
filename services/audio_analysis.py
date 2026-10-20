@@ -8,7 +8,7 @@ import numpy as np
 
 def analizar_audio(
     ruta_audio: str,
-    n_fft: int = 2048,
+    n_fft: int = 4096,
     longitud_de_salto: int = 512
 ):
     """
