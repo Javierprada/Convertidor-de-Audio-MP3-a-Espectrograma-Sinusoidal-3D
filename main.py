@@ -3,11 +3,12 @@
 # DEVUELVE: Video MP4 generado a partir del audio.
 
 import os
+from enum import Enum
 import shutil
 import tempfile
 from pathlib import Path
 
-from fastapi import FastAPI, UploadFile, File, BackgroundTasks
+from fastapi import FastAPI, UploadFile, File, BackgroundTasks, Form
 from fastapi.responses import FileResponse
 
 from services.audio_analysis import analizar_audio
@@ -25,11 +26,18 @@ def raiz():
     return {"mensaje": "API funcionando correctamente"}
 
 
+class Figura(str, Enum):
+    malla_sinusoidal_3D = "malla_sinusoidal_3D"
+    esfera_3D = "esfera_3D"
+
 @app.post("/upload")
 async def recibir_audio(
     background_tasks: BackgroundTasks,
-    archivo: UploadFile = File(...)
+    archivo: UploadFile = File(...),
+    figura: Figura = Form(Figura.malla_sinusoidal_3D)
 ):
+    
+    
     print(">>> ENTRO EN recibir_audio()", flush=True)
     ruta_audio = None
     ruta_video = None
@@ -58,6 +66,7 @@ async def recibir_audio(
             frecuencia_muestreo=frecuencia_muestreo,
             duracion_audio=duracion_audio,
             fps=30,
+            figura=figura.value
         )
 
         # 4. Crear el vídeo con el audio original.
